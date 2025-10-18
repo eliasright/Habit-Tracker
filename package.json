@@ -1,0 +1,14 @@
+{
+  "name": "habit-tracker",
+  "version": "1.0.0",
+  "description": "Habit tracker monorepo",
+  "scripts": {
+    "dev": "docker-compose up",
+    "dev:build": "docker-compose up --build",
+    "stop": "docker-compose down",
+    "clean": "docker-compose down -v"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

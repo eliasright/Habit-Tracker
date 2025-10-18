@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  name       String?
+  password   String?  // Null for Google OAuth users
+  googleId   String?  @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  habits     Habit[]
+}
+
+model Habit {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  color       String       @default("#3b82f6")
+  icon        String?
+  frequency   Frequency    @default(DAILY)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completions Completion[]
+
+  @@index([userId])
+}
+
+model Completion {
+  id          String   @id @default(uuid())
+  completedAt DateTime @default(now())
+  note        String?
+  habitId     String
+  habit       Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, completedAt])
+  @@index([habitId])
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
