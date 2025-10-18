@@ -1,6 +1,13 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { prisma } from '../index';
+import { PrismaClient } from '@prisma/client';
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Load .env from MONOREPO ROOT
+dotenv.config({ path: path.join(__dirname, '../../../.env') });
+
+const prisma = new PrismaClient();
 
 passport.use(
   new GoogleStrategy(
@@ -34,5 +41,22 @@ passport.use(
     }
   )
 );
+
+// Serialize user for session
+passport.serializeUser((user: any, done) => {
+  done(null, user.id);
+});
+
+// Deserialize user from session
+passport.deserializeUser(async (id: string, done) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+    done(null, user);
+  } catch (error) {
+    done(error);
+  }
+});
 
 export default passport;

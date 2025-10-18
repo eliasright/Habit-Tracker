@@ -1,22 +1,50 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import session from 'express-session';
+import FileStore from 'session-file-store';
 import { PrismaClient } from '@prisma/client';
-import passport from '@/config/passport';
-import authRoutes from '@/routes/authRoutes';
-import { errorHandler } from '@/middleware/errorHandler';
+import passport from './config/passport';
+import authRoutes from './routes/authRoutes';
+import { errorHandler } from './middleware/errorHandler';
 
-dotenv.config();
+// Load .env from MONOREPO ROOT
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 const app = express();
 const port = process.env.PORT || 3011;
 const prisma = new PrismaClient();
 
+// CORS Configuration
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5174',
+  credentials: true
+};
+
+// Session Configuration
+const SessionFileStore = FileStore(session);
+app.use(session({
+  store: new SessionFileStore({
+    path: './sessions',
+    ttl: 86400, // 24 hours
+  }),
+  secret: process.env.JWT_SECRET || 'fallback-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 86400000, // 24 hours
+    httpOnly: true,
+    sameSite: 'lax'
+  }
+}));
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
+app.use(passport.session());
 
 // Health check
 app.get('/health', (_req, res) => {
@@ -42,7 +70,6 @@ process.on('SIGTERM', async () => {
 
 app.listen(port, () => {
   console.log(`Backend running on http://localhost:${port}`);
-  console.log(`Environment: ${process.env.NODE_ENV}`);
 });
 
 export { prisma };

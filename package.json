@@ -2,13 +2,33 @@
   "name": "habit-tracker",
   "version": "1.0.0",
   "description": "Habit tracker monorepo",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "dev": "docker-compose up",
-    "dev:build": "docker-compose up --build",
-    "stop": "docker-compose down",
-    "clean": "docker-compose down -v"
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "frontend": "npm run dev --workspace=frontend",
+    "backend": "npm run dev --workspace=backend",
+    "build": "npm run build --workspace=frontend && npm run build --workspace=backend",
+    "start": "npm run start --workspace=backend",
+    "docker:dev": "docker-compose up",
+    "docker:build": "docker-compose up --build",
+    "docker:stop": "docker-compose down",
+    "docker:clean": "docker-compose down -v"
   },
   "keywords": [],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.0",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
 }
