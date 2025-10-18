@@ -122,9 +122,12 @@ export const googleCallback = async (req: Request, res: Response) => {
       expiresIn: '7d',
     });
 
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+
     // Redirect to frontend auth callback page with token
-    res.redirect(`http://localhost:5174/auth/callback?token=${token}`);
+    res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
   } catch (error) {
-    res.redirect('http://localhost:5174/auth/callback?error=auth_failed');
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
+    res.redirect(`${frontendUrl}/auth/callback?error=auth_failed`);
   }
 };

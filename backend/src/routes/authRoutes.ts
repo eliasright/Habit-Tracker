@@ -16,7 +16,10 @@ router.get('/me', authenticateToken, getMe);
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.get(
   '/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: 'http://localhost:5174/auth/callback?error=auth_failed' }),
+  passport.authenticate('google', {
+    session: false,
+    failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:5174'}/auth/callback?error=auth_failed`
+  }),
   googleCallback
 );
 
