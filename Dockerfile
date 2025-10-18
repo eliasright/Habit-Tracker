@@ -46,11 +46,9 @@ RUN cd backend && npx prisma generate
 # Copy BUILT frontend from builder stage
 COPY --from=builder /app/frontend/dist ./frontend/dist
 
-# Set working directory to backend
-WORKDIR /app/backend
-
 # Expose port
 EXPOSE 3011
 
 # Start the backend (which serves both API and frontend)
-CMD ["npm", "start"]
+WORKDIR /app/backend
+CMD ["node", "dist/index.js"]
