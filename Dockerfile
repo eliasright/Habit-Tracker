@@ -49,6 +49,19 @@ COPY --from=builder /app/frontend/dist ./frontend/dist
 # Expose port
 EXPOSE 3011
 
-# Start the backend (which serves both API and frontend)
+# Copy migration script
+COPY --from=builder /app/backend/prisma/migrations ./backend/prisma/migrations
+
+# Start script
 WORKDIR /app/backend
-CMD ["node", "dist/index.js"]
+COPY <<EOF /app/start.sh
+#!/bin/sh
+echo "Running Prisma migrations..."
+npx prisma migrate deploy
+echo "Starting server..."
+node dist/index.js
+EOF
+
+RUN chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]

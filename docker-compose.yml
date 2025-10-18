@@ -1,67 +1,39 @@
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: habit-tracker-db
+    ports:
+      - "54320:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-habit_tracker}
-    ports:
-      - "54320:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - habit-tracker-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
 
-  backend:
+  app:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: habit-tracker-backend
+      context: .
+      args:
+        - BUILDKIT_INLINE_CACHE=1
     ports:
       - "3011:3011"
-    env_file:
-      - .env
+    volumes:
+      - session-data:/tmp/sessions
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/habit_tracker
-      PORT: 3011
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/habit_tracker
+      - PORT=3011
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3011}
+      - JWT_SECRET=${JWT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3011}
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:3011}
     depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - habit-tracker-network
-    command: npm run dev
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: habit-tracker-frontend
-    ports:
-      - "5174:5174"
-    env_file:
-      - .env
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    depends_on:
-      - backend
-    networks:
-      - habit-tracker-network
-    command: npm run dev
+      - postgres
+    restart: unless-stopped
 
 volumes:
-  postgres_data:
-
-networks:
-  habit-tracker-network:
-    driver: bridge
+  session-data:
+  postgres-data:
