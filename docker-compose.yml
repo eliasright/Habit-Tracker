@@ -18,8 +18,14 @@ services:
         - BUILDKIT_INLINE_CACHE=1
     ports:
       - "3011:3011"
+      - "5174:5174"  # Vite HMR port
     volumes:
       - session-data:/tmp/sessions
+      # Mount source code for hot reload
+      - ./frontend/src:/app/frontend/src
+      - ./frontend/index.html:/app/frontend/index.html
+      - ./frontend/vite.config.ts:/app/frontend/vite.config.ts
+      - ./backend/src:/app/backend/src
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/habit_tracker
       - PORT=3011
@@ -30,6 +36,8 @@ services:
       - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3011}
       - VITE_API_URL=${VITE_API_URL:-http://localhost:3011}
+      # Enable polling for file watching (needed for Docker on Windows)
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - postgres
     restart: unless-stopped

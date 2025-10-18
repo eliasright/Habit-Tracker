@@ -36,7 +36,9 @@ function App() {
   const theme = useThemeStore((state) => state.theme);
 
   useEffect(() => {
+    // Apply theme on mount and when it changes
     document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
   return (

@@ -1,34 +1,29 @@
 import { create } from 'zustand';
+import { AuthState, User } from '@/types';
+import { API_URL } from '@/config/api';
 
-interface User {
-  id: string;
-  email: string;
-  name?: string;
-}
+/**
+ * Authentication Store
+ * Manages user authentication state with localStorage persistence
+ */
 
-interface AuthState {
-  user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  login: (token: string, user: User) => void;
-  logout: () => void;
-  setUser: (user: User) => void;
-  setToken: (token: string) => void;
-  fetchUser: () => Promise<void>;
-}
+const TOKEN_STORAGE_KEY = 'token';
 
+/**
+ * Zustand store for authentication management
+ */
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'),
+  token: localStorage.getItem(TOKEN_STORAGE_KEY),
+  isAuthenticated: !!localStorage.getItem(TOKEN_STORAGE_KEY),
 
   login: (token, user) => {
-    localStorage.setItem('token', token);
+    localStorage.setItem(TOKEN_STORAGE_KEY, token);
     set({ token, user, isAuthenticated: true });
   },
 
   logout: () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
     set({ token: null, user: null, isAuthenticated: false });
   },
 
@@ -37,16 +32,16 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   setToken: (token) => {
-    localStorage.setItem('token', token);
+    localStorage.setItem(TOKEN_STORAGE_KEY, token);
     set({ token, isAuthenticated: true });
   },
 
   fetchUser: async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
     if (!token) return;
 
     try {
-      const response = await fetch('http://localhost:3011/api/auth/me', {
+      const response = await fetch(`${API_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -57,7 +52,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({ user });
       } else {
         // Token is invalid, clear it
-        localStorage.removeItem('token');
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
         set({ token: null, user: null, isAuthenticated: false });
       }
     } catch (error) {
