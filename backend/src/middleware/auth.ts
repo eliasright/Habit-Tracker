@@ -31,3 +31,11 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     return;
   }
 };
+
+export const isAuthenticated = (req: Request, res: Response, next: NextFunction): void => {
+  if (req.isAuthenticated && req.isAuthenticated() && req.user) {
+    next();
+  } else {
+    res.status(401).json({ error: 'Authentication required' });
+  }
+};

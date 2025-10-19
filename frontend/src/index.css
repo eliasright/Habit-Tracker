@@ -3,29 +3,29 @@
 @tailwind utilities;
 
 :root {
-  /* Light mode colors */
+  /* Light mode colors - Orange, White, Black theme */
   --bg-primary: #ffffff;
-  --bg-secondary: #f9fafb;
-  --text-primary: #111827;
-  --text-secondary: #6b7280;
-  --border-color: #e5e7eb;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
+  --bg-secondary: #fefefe;
+  --text-primary: #000000;
+  --text-secondary: #000000;
+  --border-color: #e5e5e5;
+  --accent: #f97316;
+  --accent-hover: #ea580c;
   --card-bg: #ffffff;
-  --shadow: rgba(0, 0, 0, 0.1);
+  --shadow: rgba(0, 0, 0, 0.08);
 }
 
 [data-theme='dark'] {
-  /* Dark mode colors */
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #0f0f0f;
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
-  --border-color: #374151;
-  --accent: #3b82f6;
-  --accent-hover: #60a5fa;
-  --card-bg: #262626;
-  --shadow: rgba(0, 0, 0, 0.5);
+  /* Dark mode colors - Orange, White, Black theme */
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #1a1a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #ffffff;
+  --border-color: #333333;
+  --accent: #f97316;
+  --accent-hover: #fb923c;
+  --card-bg: #1f1f1f;
+  --shadow: rgba(0, 0, 0, 0.4);
 }
 
 @layer base {
@@ -58,4 +58,38 @@
   button {
     font-family: inherit;
   }
+
+  input::placeholder,
+  textarea::placeholder,
+  select::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+
+  input,
+  textarea,
+  select {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: var(--accent);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+}
+
+/* Tooltip custom styling */
+.react-tooltip {
+  background-color: #9a3412 !important; /* Darker orange background */
+  color: white !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+  max-width: 250px !important;
+  word-wrap: break-word !important;
 }

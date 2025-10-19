@@ -1,6 +1,6 @@
 function HomePage() {
   return (
-    <div className="min-h-[calc(100vh-120px)] flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="text-center max-w-4xl mx-auto">
         {/* Main Heading */}
         <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold text-text-primary mb-8 leading-tight tracking-tight">

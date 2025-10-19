@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useThemeStore } from '../store/themeStore';
 import { useAuthStore } from '../store/authStore';
@@ -8,11 +8,22 @@ function Header() {
   const { theme, toggleTheme } = useThemeStore();
   const { isAuthenticated, logout } = useAuthStore();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 20);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleAuthAction = () => {
     if (isAuthenticated) {
-      navigate('/habits');
+      navigate('/dashboard');
     } else {
       setShowAuthModal(true);
     }
@@ -20,16 +31,31 @@ function Header() {
 
   return (
     <>
-      <header className="px-4 sm:px-6 lg:px-8 py-6">
-        <div className="max-w-7xl mx-auto bg-bg-primary border border-border rounded-full px-6 py-3 shadow-lg">
+      <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-7xl px-4 sm:px-6 lg:px-8 transition-all duration-300">
+        <div className={`border border-border rounded-full px-6 py-3 shadow-lg transition-all duration-300 ${
+          isScrolled 
+            ? 'bg-bg-primary/80 backdrop-blur-md shadow-xl border-border/50' 
+            : 'bg-bg-primary shadow-lg'
+        }`}>
           <div className="flex justify-between items-center">
             {/* Left Side - Logo/Home & Theme Toggle */}
             <div className="flex items-center gap-4">
               <Link
                 to="/"
-                className="text-text-primary font-semibold text-lg hover:text-accent transition-colors duration-200"
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-200"
               >
-                Home
+                <img 
+                  src="/logo.png" 
+                  alt="Habit Tracker" 
+                  className="h-8 w-8 rounded-lg object-cover"
+                  onError={(e) => {
+                    // Fallback to text only if logo doesn't exist
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                <span className="text-text-primary font-semibold text-lg">
+                  Home
+                </span>
               </Link>
 
               {/* Theme Toggle */}
@@ -64,12 +90,12 @@ function Header() {
                 onClick={handleAuthAction}
                 className="bg-gradient-to-r from-accent to-accent-hover text-white font-medium px-6 py-2 rounded-full hover:shadow-lg hover:shadow-accent/30 transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:ring-offset-2"
               >
-                {isAuthenticated ? 'View Habits' : 'Sign In'}
+                {isAuthenticated ? 'Dashboard' : 'Sign In'}
               </button>
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </>

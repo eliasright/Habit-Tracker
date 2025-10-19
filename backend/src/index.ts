@@ -7,6 +7,10 @@ import FileStore from 'session-file-store';
 import { PrismaClient } from '@prisma/client';
 import passport from './config/passport';
 import authRoutes from './routes/authRoutes';
+import categoriesRoutes from './routes/categoriesRoutes';
+import todosRoutes from './routes/todosRoutes';
+import checklistRoutes from './routes/checklistRoutes';
+import onboardingRoutes from './routes/onboardingRoutes';
 import { errorHandler } from './middleware/errorHandler';
 
 // Load .env from MONOREPO ROOT
@@ -53,6 +57,10 @@ app.get('/health', (_req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/categories', categoriesRoutes);
+app.use('/api/todos', todosRoutes);
+app.use('/api', checklistRoutes);
+app.use('/api/onboarding', onboardingRoutes);
 
 // Serve static frontend ONLY if dist folder exists (production mode)
 const frontendPath = path.join(__dirname, '../../frontend/dist');

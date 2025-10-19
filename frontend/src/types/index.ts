@@ -4,3 +4,4 @@
 
 export * from './auth.types';
 export * from './theme.types';
+export * from './todo.types';

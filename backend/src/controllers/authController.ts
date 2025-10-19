@@ -98,6 +98,9 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
         id: true,
         email: true,
         name: true,
+        timezone: true,
+        motivationQuote: true,
+        onboarded: true,
         createdAt: true,
       },
     });

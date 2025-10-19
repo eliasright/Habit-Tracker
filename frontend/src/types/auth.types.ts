@@ -7,6 +7,9 @@ export interface User {
   email: string;
   name?: string;
   googleId?: string;
+  onboarded?: boolean;
+  timezone?: string;
+  motivationQuote?: string;
   createdAt?: string;
   updatedAt?: string;
 }

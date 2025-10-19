@@ -11,14 +11,19 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  email      String   @unique
-  name       String?
-  password   String?  // Null for Google OAuth users
-  googleId   String?  @unique
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  habits     Habit[]
+  id               String     @id @default(uuid())
+  email            String     @unique
+  name             String?
+  password         String?    // Null for Google OAuth users
+  googleId         String?    @unique
+  onboarded        Boolean    @default(false)
+  timezone         String?
+  motivationQuote  String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  habits           Habit[]
+  categories       Category[]
+  todos            Todo[]
 }
 
 model Habit {
@@ -52,4 +57,56 @@ enum Frequency {
   DAILY
   WEEKLY
   MONTHLY
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  color     String   @default("#3b82f6")
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  todos     Todo[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Todo {
+  id            String              @id @default(uuid())
+  title         String
+  notes         String?
+  difficulty    Difficulty          @default(MEDIUM)
+  dueDate       DateTime?
+  completed     Boolean             @default(false)
+  completedAt   DateTime?
+  userId        String
+  categoryId    String?
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category      Category?           @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  checklistItems TodoChecklistItem[]
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([userId])
+  @@index([categoryId])
+}
+
+model TodoChecklistItem {
+  id         String   @id @default(uuid())
+  text       String
+  completed  Boolean  @default(false)
+  orderIndex Int
+  todoId     String
+  todo       Todo     @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([todoId])
 }

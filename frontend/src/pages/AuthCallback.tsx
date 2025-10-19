@@ -10,38 +10,58 @@ function AuthCallback() {
   const { setToken, fetchUser } = useAuthStore();
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    const errorParam = searchParams.get('error');
+    let interval: NodeJS.Timeout;
+    
+    const handleAuth = async () => {
+      const token = searchParams.get('token');
+      const errorParam = searchParams.get('error');
 
-    if (errorParam) {
-      setError('Authentication failed. Please try again.');
-      setTimeout(() => navigate('/'), 3000);
-      return;
-    }
+      if (errorParam) {
+        setError('Authentication failed. Please try again.');
+        setTimeout(() => navigate('/'), 3000);
+        return;
+      }
 
-    if (!token) {
-      setError('No token received. Redirecting...');
-      setTimeout(() => navigate('/'), 2000);
-      return;
-    }
+      if (!token) {
+        setError('No token received. Redirecting...');
+        setTimeout(() => navigate('/'), 2000);
+        return;
+      }
 
-    // Save the token and fetch user data
-    setToken(token);
-    fetchUser();
+      try {
+        // Save the token first
+        setToken(token);
+        
+        // Fetch user data after token is set
+        setTimeout(async () => {
+          await fetchUser();
+        }, 0);
 
-    // Countdown timer
-    const interval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          navigate('/habits');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+        // Start countdown timer
+        interval = setInterval(() => {
+          setCountdown((prev) => {
+            if (prev <= 1) {
+              clearInterval(interval);
+              navigate('/dashboard');
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      } catch (error) {
+        setError('Authentication failed. Please try again.');
+        setTimeout(() => navigate('/'), 3000);
+      }
+    };
 
-    return () => clearInterval(interval);
+    handleAuth();
+
+    // Cleanup function for the useEffect
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, [searchParams, navigate, setToken, fetchUser]);
 
   if (error) {
@@ -75,7 +95,7 @@ function AuthCallback() {
           Successfully Signed In!
         </h1>
         <p className="text-text-secondary mb-8">
-          Welcome back! Redirecting you to your habits...
+          Welcome back! Redirecting you to your dashboard...
         </p>
 
         {/* Countdown */}
